@@ -12,7 +12,10 @@ import (
 	"time"
 )
 
-const rfc2822 = "Mon, 2 Jan 2006 15:04:05 MST"
+const (
+	RFC2822  = "Mon, 2 Jan 2006 15:04:05 MST"
+	RFC1123Z = "Mon, 2 Jan 2006 15:04:05 -0700"
+)
 
 type Time struct {
 	Value time.Time
@@ -21,13 +24,16 @@ type Time struct {
 func (t *Time) UnmarshalText(data []byte) (err error) {
 	strData := string(data)
 
-	tm, err := time.Parse(rfc2822, strData)
+	tm, err := time.Parse(RFC2822, strData)
 	if err != nil {
 		tm, err = time.Parse(time.RFC1123Z, strData)
 		if err != nil {
-			tm, err = time.Parse(time.RFC1123, strData)
+			tm, err = time.Parse(RFC1123Z, strData)
 			if err != nil {
-				return
+				tm, err = time.Parse(time.RFC1123, strData)
+				if err != nil {
+					return
+				}
 			}
 		}
 	}
