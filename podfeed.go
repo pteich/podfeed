@@ -12,19 +12,27 @@ import (
 	"time"
 )
 
+const rfc2822 = "Mon, 2 Jan 2006 15:04:05 MST"
+
 type Time struct {
 	Value time.Time
 }
 
 func (t *Time) UnmarshalText(data []byte) (err error) {
-	tm, err := time.Parse(time.RFC1123Z, string(data))
+	strData := string(data)
+
+	tm, err := time.Parse(rfc2822, strData)
 	if err != nil {
-		tm, err = time.Parse(time.RFC1123, string(data))
+		tm, err = time.Parse(time.RFC1123Z, strData)
 		if err != nil {
-			return
+			tm, err = time.Parse(time.RFC1123, strData)
+			if err != nil {
+				return
+			}
 		}
 	}
-	*t = Time{tm}
+	t.Value = tm
+
 	return
 }
 
